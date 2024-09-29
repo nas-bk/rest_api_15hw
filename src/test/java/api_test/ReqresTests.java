@@ -1,4 +1,4 @@
-package API_Test;
+package api_test;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeAll;
@@ -22,7 +22,8 @@ public class ReqresTests {
                 .log().uri()
 
                 .when()
-                .get("?page=2")
+                .queryParam("page", "2")
+                .get()
 
                 .then()
                 .log().status()
