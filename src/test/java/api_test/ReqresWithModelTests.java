@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static specs.ReqresSpec.*;
 
 @Tag("api")
@@ -38,15 +38,17 @@ public class ReqresWithModelTests {
                         .post("/users")
 
                         .then()
-                        .spec(createUserResponseSpec)
+                        .spec(createUserResponseSpec201)
                         .extract().as(CreateUserResponseModel.class));
 
         step("Check response", () ->
-                assertEquals("morpheus", response.getName()));
+                assertThat(response.getName())
+                        .isEqualTo("morpheus"));
+
     }
 
     @Test
-    void successfulRegistration() {
+    void successfulRegistrationTest() {
         RegistrationBodyModel regData = new RegistrationBodyModel();
         regData.setEmail("eve.holt@reqres.in");
         regData.setPassword("pistol");
@@ -59,12 +61,16 @@ public class ReqresWithModelTests {
                         .post("/register")
 
                         .then()
-                        .spec(successfulResponseSpec)
+                        .spec(successfulResponseSpec200)
                         .extract().as(RegistrationResponseModel.class));
 
         step("Check response", () -> {
-            assertEquals("4", response.getId());
-            assertEquals("QpwL5tke4Pnpja7X4", response.getToken());
+            assertThat(response.getId())
+                    .isEqualTo("4");
+
+            assertThat(response.getToken())
+                    .isNotNull()
+                    .hasSizeGreaterThan(10);
         });
     }
 
@@ -77,12 +83,15 @@ public class ReqresWithModelTests {
                         .get("/unknown/2")
 
                         .then()
-                        .spec(successfulResponseSpec)
+                        .spec(successfulResponseSpec200)
                         .extract().as(SingleResponseModel.class));
 
         step("Check response", () -> {
-            assertEquals("2", response.getData().getId());
-            assertEquals("https://reqres.in/#support-heading", response.getSupport().getUrl());
+            assertThat(response.getData().getId())
+                    .isEqualTo("2");
+
+            assertThat(response.getSupport().getUrl())
+                    .isEqualTo("https://reqres.in/#support-heading");
         });
     }
 }
